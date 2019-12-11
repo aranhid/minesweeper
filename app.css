@@ -1,0 +1,39 @@
+body {
+    margin: 0 0 0 0;
+    font-family: 'Roboto', sans-serif;
+    font: Bold 20px Roboto;
+    opacity: 1;
+}
+
+.grid {
+    display: grid;
+    grid-template-rows: repeat(12, 40px);
+    grid-template-columns: repeat(12, 40px);
+    grid-gap: 10px;
+}
+
+.grid > div {
+    background: #BBBBBB 0% 0% no-repeat padding-box;
+    border: 1px solid #707070;
+    opacity: 1;
+}
+
+.grid> div.opened {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    border: 1px solid #707070;
+    opacity: 1;
+}
+
+.grid > div.flag {
+    background: #FFFFFF 0% 0% no-repeat padding-box;
+    background-image: url("img/flag.svg");
+}
+
+.grid > div.bomb {
+    background: #C42828 0% 0% no-repeat padding-box;
+    background-image: url("img/bomb.svg");
+}
