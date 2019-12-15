@@ -4,11 +4,19 @@ window.onload = function () {
     var fieldHeight = 12
     var fieldWidth = 12
     var bombCount = 10
+    var closedCells = fieldWidth * fieldHeight;
+    isWin = false;
+
+    document.querySelector('.popupButton').addEventListener("click", closePopup);
 
     generateField();
 
     function generateField() {
+        isFirstClick = true;
+        closedCells = fieldWidth * fieldHeight;
         let grid = document.querySelector(".grid");
+        grid.style.gridTemplateRows = "repeat(" + fieldHeight + ", 40px)";
+        grid.style.gridTemplateColumns = "repeat(" + fieldWidth + ", 40px)";
 
         function createDiv(kekX, kekY) {
             let div = document.createElement('div');
@@ -76,6 +84,15 @@ window.onload = function () {
         }
     }
 
+    function deleteField() {
+        for (let y = 0; y < fieldHeight; y++) {
+            for (let x = 0; x < fieldWidth; x++) {
+                let div = document.querySelector(".cell" + x + "x" + y);
+                div.remove();
+            }
+        }
+    }
+
     function openAllBombs() {
         for (let y = 0; y < fieldHeight; y++) {
             for (let x = 0; x < fieldWidth; x++) {
@@ -100,10 +117,21 @@ window.onload = function () {
         if (map[y][x] == -1) {
             //div.style.backgroundColor = "red";
             openAllBombs();
+            //alert("You lose!");
+            isWin = false;
+            sendMessage("You lose!");
+            /*deleteField();
+            generateField();*/
             //div.classList.add("bomb");
             return;
         }
         div.classList.add("opened");
+        closedCells--;
+        if (closedCells == bombCount) {
+            //alert("You win!");
+            isWin = true;
+            sendMessage("You win!");
+        }
         if (map[y][x] > 0) {
             div.innerText = map[y][x];
             div.style.backgroundColor = "yellow";
@@ -133,5 +161,23 @@ window.onload = function () {
         else {
             this.classList.add("flag");
         }
+    }
+
+    function sendMessage(string) {
+        document.querySelector('.popup').style.display = "block";
+        document.querySelector('.popupMessage').innerText = string;
+        if(isWin)
+        {
+            document.querySelector('.popupWindow').style.backgroundColor = "#1ab61a";
+        }
+        else {
+            document.querySelector('.popupWindow').style.backgroundColor = "#e62020";
+        }
+    }
+
+    function closePopup() {
+        document.querySelector('.popup').style.display = "none";
+        deleteField();
+        generateField();
     }
 }
