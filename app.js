@@ -12,6 +12,13 @@ window.onload = function () {
 
     generateField();
 
+    window.addEventListener('focus',() => {
+        let disp = this.getComputedStyle(document.querySelector('.popup'));
+        if(disp.getPropertyValue("display") == "none")
+            document.querySelector('.cell0x0').focus();
+        else document.querySelector('.popup').focus();
+    })
+
     function generateField() {
         isFirstClick = true;
         closedCells = fieldWidth * fieldHeight;
@@ -55,7 +62,7 @@ window.onload = function () {
             for (let x = 0; x < fieldWidth; x++) {
                 let div = createDiv(x, y);
                 div.className = "cell" + x + "x" + y;
-                div.tabIndex = y*12 + x + 1;
+                div.tabIndex = -1;
                 //div.innerText = map[y][x];
                 grid.appendChild(div);
                 if (x == 0 && y == 0)
@@ -194,10 +201,10 @@ window.onload = function () {
 
     function sendMessage(string) {
         document.querySelector('.popup').style.display = "block";
-        /*document.querySelector('.popupButton').tabIndex = 999;
-        document.querySelector('.popupButton').focus();*/
+        document.querySelector('.popupButton').tabIndex = 999;
+        document.querySelector('.popupButton').focus();
         document.querySelector('.popupButton').addEventListener('mouseup', closePopup, {once: true});
-        document.addEventListener('keyup', closePopup,{once: true});
+        document.querySelector('.popupButton').addEventListener('keydown', closePopup, {once: true});
         document.querySelector('.popupMessage').innerText = string;
         if(isWin)
         {
