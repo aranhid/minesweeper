@@ -1,8 +1,24 @@
+html {
+    height: 100%;
+}
+
 body {
     margin: 0 0 0 0;
     font-family: 'Roboto', sans-serif;
     font: Bold 20px Roboto;
     opacity: 1;
+    background-color: #fff;
+    height: 100%;
+    width: 100%;
+}
+
+.gameArea {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .grid {
