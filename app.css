@@ -55,6 +55,10 @@ body {
     background-image: url("img/bomb.svg");
 }
 
+.grid > div:focus {
+    border: 3px steelblue solid;
+}
+
 .popup {
     display: none;
     position: absolute;
