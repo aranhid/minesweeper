@@ -31,12 +31,12 @@ window.onload = function () {
             div.addEventListener('click', function () { openCell(kekX, kekY); });
             div.addEventListener('contextmenu', setFlag);
             div.addEventListener('keydown', function(event) {
-                if (event.key == "Enter" && event.ctrlKey)
+                if ((event.key == "Enter" || event.code == "Space") && event.ctrlKey)
                 {
                     let h = new Event("contextmenu");
                     div.dispatchEvent(h);
                 }
-                if (event.key == "Enter" && !event.ctrlKey)
+                if ((event.key == "Enter" || event.code == "Space") && !event.ctrlKey)
                     openCell(kekX, kekY);
                 if (event.key == "ArrowDown" && kekY < fieldHeight - 1)
                 {
