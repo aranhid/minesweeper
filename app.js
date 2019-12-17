@@ -31,7 +31,7 @@ window.onload = function () {
                 }
                 if (event.key == "Enter" && !event.ctrlKey)
                     openCell(kekX, kekY);
-                if (event.key == "ArrowDown" && kekY < fieldHeight)
+                if (event.key == "ArrowDown" && kekY < fieldHeight - 1)
                 {
                     document.querySelector(".cell"+kekX+"x"+(kekY+1)).focus();
                 }
@@ -43,7 +43,7 @@ window.onload = function () {
                 {
                     document.querySelector(".cell"+(kekX-1)+"x"+kekY).focus();
                 }
-                if (event.key == "ArrowRight" && kekX < fieldWidth)
+                if (event.key == "ArrowRight" && kekX < fieldWidth - 1)
                 {
                     document.querySelector(".cell"+(kekX+1)+"x"+kekY).focus();
                 }
