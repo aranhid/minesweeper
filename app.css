@@ -70,6 +70,12 @@ body {
     color: white;
 }
 
+.popupContinueText {
+    color: white;
+    text-align: center;
+    font-size: 14px;
+}
+
 .popupButton {
     color: white;
     text-align: center;

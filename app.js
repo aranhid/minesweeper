@@ -7,7 +7,8 @@ window.onload = function () {
     var closedCells = fieldWidth * fieldHeight;
     isWin = false;
 
-    document.querySelector('.popupButton').addEventListener("click", closePopup);
+    /*document.querySelector('.popupButton').addEventListener("click", closePopup);
+    document.querySelector('.popupButton').addEventListener("keyup", closePopup);*/
 
     generateField();
 
@@ -22,6 +23,31 @@ window.onload = function () {
             let div = document.createElement('div');
             div.addEventListener('click', function () { openCell(kekX, kekY); });
             div.addEventListener('contextmenu', setFlag);
+            div.addEventListener('keydown', function(event) {
+                if (event.key == "Enter" && event.ctrlKey)
+                {
+                    let h = new Event("contextmenu");
+                    div.dispatchEvent(h);
+                }
+                if (event.key == "Enter" && !event.ctrlKey)
+                    openCell(kekX, kekY);
+                if (event.key == "ArrowDown" && kekY < fieldHeight)
+                {
+                    document.querySelector(".cell"+kekX+"x"+(kekY+1)).focus();
+                }
+                if (event.key == "ArrowUp" && kekY > 0)
+                {
+                    document.querySelector(".cell"+kekX+"x"+(kekY-1)).focus();
+                }
+                if (event.key == "ArrowLeft" && kekX > 0)
+                {
+                    document.querySelector(".cell"+(kekX-1)+"x"+kekY).focus();
+                }
+                if (event.key == "ArrowRight" && kekX < fieldWidth)
+                {
+                    document.querySelector(".cell"+(kekX+1)+"x"+kekY).focus();
+                }
+            })
             return div;
         }
 
@@ -29,8 +55,11 @@ window.onload = function () {
             for (let x = 0; x < fieldWidth; x++) {
                 let div = createDiv(x, y);
                 div.className = "cell" + x + "x" + y;
+                div.tabIndex = y*12 + x + 1;
                 //div.innerText = map[y][x];
                 grid.appendChild(div);
+                if (x == 0 && y == 0)
+                    div.focus();
             }
         }
 
@@ -165,6 +194,10 @@ window.onload = function () {
 
     function sendMessage(string) {
         document.querySelector('.popup').style.display = "block";
+        /*document.querySelector('.popupButton').tabIndex = 999;
+        document.querySelector('.popupButton').focus();*/
+        document.querySelector('.popupButton').addEventListener('mouseup', closePopup, {once: true});
+        document.addEventListener('keyup', closePopup,{once: true});
         document.querySelector('.popupMessage').innerText = string;
         if(isWin)
         {
