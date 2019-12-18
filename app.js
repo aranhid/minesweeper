@@ -7,9 +7,6 @@ window.onload = function () {
     var closedCells = fieldWidth * fieldHeight;
     isWin = false;
 
-    /*document.querySelector('.popupButton').addEventListener("click", closePopup);
-    document.querySelector('.popupButton').addEventListener("keyup", closePopup);*/
-
     generateField();
 
     window.addEventListener('focus',() => {
@@ -26,9 +23,9 @@ window.onload = function () {
         grid.style.gridTemplateRows = "repeat(" + fieldHeight + ", 40px)";
         grid.style.gridTemplateColumns = "repeat(" + fieldWidth + ", 40px)";
 
-        function createDiv(kekX, kekY) {
+        function createDiv(currentX, currentY) {
             let div = document.createElement('div');
-            div.addEventListener('click', function () { openCell(kekX, kekY); });
+            div.addEventListener('click', function () { openCell(currentX, currentY); });
             div.addEventListener('contextmenu', setFlag);
             div.addEventListener('keydown', function(event) {
                 if ((event.key == "Enter" || event.code == "Space") && event.ctrlKey)
@@ -37,22 +34,22 @@ window.onload = function () {
                     div.dispatchEvent(h);
                 }
                 if ((event.key == "Enter" || event.code == "Space") && !event.ctrlKey)
-                    openCell(kekX, kekY);
-                if (event.key == "ArrowDown" && kekY < fieldHeight - 1)
+                    openCell(currentX, currentY);
+                if (event.key == "ArrowDown" && currentY < fieldHeight - 1)
                 {
-                    document.querySelector(".cell"+kekX+"x"+(kekY+1)).focus();
+                    document.querySelector(".cell"+currentX+"x"+(currentY+1)).focus();
                 }
-                if (event.key == "ArrowUp" && kekY > 0)
+                if (event.key == "ArrowUp" && currentY > 0)
                 {
-                    document.querySelector(".cell"+kekX+"x"+(kekY-1)).focus();
+                    document.querySelector(".cell"+currentX+"x"+(currentY-1)).focus();
                 }
-                if (event.key == "ArrowLeft" && kekX > 0)
+                if (event.key == "ArrowLeft" && currentX > 0)
                 {
-                    document.querySelector(".cell"+(kekX-1)+"x"+kekY).focus();
+                    document.querySelector(".cell"+(currentX-1)+"x"+currentY).focus();
                 }
-                if (event.key == "ArrowRight" && kekX < fieldWidth - 1)
+                if (event.key == "ArrowRight" && currentX < fieldWidth - 1)
                 {
-                    document.querySelector(".cell"+(kekX+1)+"x"+kekY).focus();
+                    document.querySelector(".cell"+(currentX+1)+"x"+currentY).focus();
                 }
             })
             return div;
@@ -63,19 +60,11 @@ window.onload = function () {
                 let div = createDiv(x, y);
                 div.className = "cell" + x + "x" + y;
                 div.tabIndex = -1;
-                //div.innerText = map[y][x];
                 grid.appendChild(div);
                 if (x == 0 && y == 0)
                     div.focus();
             }
         }
-
-        /*document.addEventListener('keyup', function () {
-            alert("TEST");
-        }, { once: true });
-        document.addEventListener('mousedown', function () {
-            alert("TEST");
-        }, { once: true });*/
     }
 
     function generateMap(avoidX, avoidY) {
@@ -151,20 +140,14 @@ window.onload = function () {
         if (div.classList.contains("opened") || div.classList.contains("flag"))
             return;
         if (map[y][x] == -1) {
-            //div.style.backgroundColor = "red";
             openAllBombs();
-            //alert("You lose!");
             isWin = false;
             sendMessage("You lose!");
-            /*deleteField();
-            generateField();*/
-            //div.classList.add("bomb");
             return;
         }
         div.classList.add("opened");
         closedCells--;
         if (closedCells == bombCount) {
-            //alert("You win!");
             isWin = true;
             sendMessage("You win!");
         }
