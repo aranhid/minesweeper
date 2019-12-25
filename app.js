@@ -1,55 +1,88 @@
 window.onload = function () {
     var map = []
-    var isFirstClick = true
     var fieldHeight = 12
     var fieldWidth = 12
     var bombCount = 10
     var closedCells = fieldWidth * fieldHeight;
-    isWin = false;
+
+    document.addEventListener("mine.step", function (event) {
+        let x = event.detail.posX;
+        let y = event.detail.posY;
+        let mineStart = new CustomEvent("mine.start", { detail: { avoidX: x, avoidY: y } })
+        document.dispatchEvent(mineStart);
+        openCell(x, y);
+    });
+
+    document.addEventListener("mine.flag", setFlag);
+
+    document.addEventListener("mine.focusCell", function (event) {
+        document.querySelector(".cell" + event.detail.x + "x" + event.detail.y).focus();
+    });
 
     generateField();
 
-    window.addEventListener('focus',() => {
+    window.addEventListener('focus', () => {
         let disp = this.getComputedStyle(document.querySelector('.popup'));
-        if(disp.getPropertyValue("display") == "none")
+        if (disp.getPropertyValue("display") == "none")
             document.querySelector('.cell0x0').focus();
         else document.querySelector('.popup').focus();
     })
 
     function generateField() {
-        isFirstClick = true;
         closedCells = fieldWidth * fieldHeight;
         let grid = document.querySelector(".grid");
         grid.style.gridTemplateRows = "repeat(" + fieldHeight + ", 40px)";
         grid.style.gridTemplateColumns = "repeat(" + fieldWidth + ", 40px)";
 
+        document.addEventListener("mine.start", function (event) {
+            let avoidX = event.detail.avoidX;
+            let avoidY = event.detail.avoidY;
+            generateMap(avoidX, avoidY);
+        }, { once: true });
+
+        document.addEventListener("mine.end", function (event) {
+            let gameStatus = event.detail.gameStatus;
+            if (gameStatus === "lose")
+                openAllBombs();
+            sendMessage("You " + gameStatus + "!", gameStatus);
+
+        }, { once: true });
+
         function createDiv(currentX, currentY) {
             let div = document.createElement('div');
-            div.addEventListener('click', function () { openCell(currentX, currentY); });
-            div.addEventListener('contextmenu', setFlag);
-            div.addEventListener('keydown', function(event) {
-                if ((event.key == "Enter" || event.code == "Space") && event.ctrlKey)
-                {
-                    let h = new Event("contextmenu");
-                    div.dispatchEvent(h);
+            let stepEvent = new CustomEvent("mine.step", { detail: { posX: currentX, posY: currentY } });
+            let flagEvent = new CustomEvent("mine.flag", { detail: { cell: div } });
+
+            div.addEventListener('click', function () {
+                document.dispatchEvent(stepEvent);
+            });
+
+            div.addEventListener('contextmenu', function () {
+                event.preventDefault();
+                document.dispatchEvent(flagEvent);
+            });
+            div.addEventListener('keydown', function (event) {
+                if ((event.key == "Enter" || event.code == "Space") && event.ctrlKey) {
+                    document.dispatchEvent(flagEvent);
                 }
-                if ((event.key == "Enter" || event.code == "Space") && !event.ctrlKey)
-                    openCell(currentX, currentY);
-                if (event.key == "ArrowDown" && currentY < fieldHeight - 1)
-                {
-                    document.querySelector(".cell"+currentX+"x"+(currentY+1)).focus();
+                if ((event.key == "Enter" || event.code == "Space") && !event.ctrlKey) {
+                    document.dispatchEvent(stepEvent);
                 }
-                if (event.key == "ArrowUp" && currentY > 0)
-                {
-                    document.querySelector(".cell"+currentX+"x"+(currentY-1)).focus();
+                if (event.key == "ArrowDown" && currentY < fieldHeight - 1) {
+                    let focusCell = new CustomEvent("mine.focusCell", { detail: { x: currentX, y: currentY + 1 } });
+                    document.dispatchEvent(focusCell);
                 }
-                if (event.key == "ArrowLeft" && currentX > 0)
-                {
-                    document.querySelector(".cell"+(currentX-1)+"x"+currentY).focus();
+                if (event.key == "ArrowUp" && currentY > 0) {
+                    let focusCell = new CustomEvent("mine.focusCell", { detail: { x: currentX, y: currentY - 1 } });
+                    document.dispatchEvent(focusCell);
                 }
-                if (event.key == "ArrowRight" && currentX < fieldWidth - 1)
-                {
-                    document.querySelector(".cell"+(currentX+1)+"x"+currentY).focus();
+                if (event.key == "ArrowLeft" && currentX > 0) {
+                    let focusCell = new CustomEvent("mine.focusCell", { detail: { x: currentX - 1, y: currentY } });
+                    document.dispatchEvent(focusCell);
+                }
+                if (event.key == "ArrowRight" && currentX < fieldWidth - 1) {
+                    let focusCell = new CustomEvent("mine.focusCell", { detail: { x: currentX + 1, y: currentY } });
+                    document.dispatchEvent(focusCell);
                 }
             })
             return div;
@@ -132,24 +165,21 @@ window.onload = function () {
     }
 
     function openCell(x, y) {
-        if (isFirstClick) {
-            generateMap(x, y);
-            isFirstClick = false;
-        }
         let div = document.querySelector(".cell" + x + "x" + y);
         if (div.classList.contains("opened") || div.classList.contains("flag"))
             return;
+
         if (map[y][x] == -1) {
-            openAllBombs();
-            isWin = false;
-            sendMessage("You lose!");
+            let gameOverEvent = new CustomEvent("mine.end", { detail: { gameStatus: "lose" } })
+            document.dispatchEvent(gameOverEvent);
             return;
         }
         div.classList.add("opened");
         closedCells--;
         if (closedCells == bombCount) {
-            isWin = true;
-            sendMessage("You win!");
+            let gameOverEvent = new CustomEvent("mine.end", { detail: { gameStatus: "win" } })
+            document.dispatchEvent(gameOverEvent);
+            return;
         }
         if (map[y][x] > 0) {
             div.innerText = map[y][x];
@@ -171,26 +201,25 @@ window.onload = function () {
     }
 
     function setFlag(event) {
-        event.preventDefault();
-        if (this.classList.contains("opened"))
+        let cell = event.detail.cell;
+        if (cell.classList.contains("opened"))
             return;
-        if (this.classList.contains("flag")) {
-            this.classList.remove("flag");
+        if (cell.classList.contains("flag")) {
+            cell.classList.remove("flag");
         }
         else {
-            this.classList.add("flag");
+            cell.classList.add("flag");
         }
     }
 
-    function sendMessage(string) {
+    function sendMessage(string, gameStatus) {
         document.querySelector('.popup').style.display = "block";
         document.querySelector('.popupButton').tabIndex = 999;
         document.querySelector('.popupButton').focus();
-        document.querySelector('.popupButton').addEventListener('mouseup', closePopup, {once: true});
-        document.querySelector('.popupButton').addEventListener('keydown', closePopup, {once: true});
+        document.querySelector('.popupButton').addEventListener('mouseup', closePopup, { once: true });
+        document.querySelector('.popupButton').addEventListener('keydown', closePopup, { once: true });
         document.querySelector('.popupMessage').innerText = string;
-        if(isWin)
-        {
+        if (gameStatus === "win") {
             document.querySelector('.popupWindow').style.backgroundColor = "#1ab61a";
         }
         else {
